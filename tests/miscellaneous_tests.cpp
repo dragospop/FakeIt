@@ -48,16 +48,19 @@ struct Miscellaneous : tpunit::TestFixture
         Fake(Method(mock, foo));
     }
 
+ 
+    struct SomeClass
+    {
+        virtual void foo() = 0;
+    protected:
+        SomeClass(int)
+        {
+        }
+    };
+
+
     void can_mock_class_with_protected_constructor()
     {
-        struct SomeClass
-        {
-            virtual void foo() = 0;
-        protected:
-            SomeClass(int)
-            {
-            }
-        };
         Mock<SomeClass> mock;
         Fake(Method(mock, foo));
     }
@@ -121,14 +124,12 @@ struct Miscellaneous : tpunit::TestFixture
         ASSERT_EQUAL(4, mock().a2());
     }
 
+    struct FooInt {
+        virtual int bar(int&&) = 0;
+    };
 
     void testStubFuncWithRightValueParameter() {
-
-        struct Foo {
-            virtual int bar(int &&) = 0;
-        };
-
-        Mock<Foo> foo_mock;
+        Mock<FooInt> foo_mock;
         When(Method(foo_mock, bar)).AlwaysReturn(100);
         When(Method(foo_mock, bar).Using(1)).AlwaysReturn(1);
         When(Method(foo_mock, bar).Using(2)).AlwaysDo([](int &){return 2; });
@@ -142,17 +143,16 @@ struct Miscellaneous : tpunit::TestFixture
         ASSERT_EQUAL(4, foo_mock.get().bar(4));
     }
 
-    void testStubProcWithRightValueParameter() {
-
-        struct Foo {
+    struct FooVoid {
             virtual void bar(int &&) = 0;
         };
 
+    void testStubProcWithRightValueParameter() {
         int rv3 = 0;
         int rv4 = 0;
         int rv5 = 0;
 
-        Mock<Foo> foo_mock;
+        Mock<FooVoid> foo_mock;
         When(Method(foo_mock, bar).Using(1)).Return();
         When(Method(foo_mock, bar)).AlwaysReturn();
         When(Method(foo_mock, bar).Using(3)).AlwaysDo([&](int &){rv3 = 3; });

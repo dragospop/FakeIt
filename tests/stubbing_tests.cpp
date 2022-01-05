@@ -609,20 +609,19 @@ struct BasicStubbing : tpunit::TestFixture {
         ASSERT_THROW(i.func(1), fakeit::UnexpectedMethodCallException);
     }
 
+    struct SomeInterfaceWithState {
+        virtual int func(int) = 0;
+
+        std::string state;
+    };
 
     void reset_mock_to_initial_state() {
-        struct SomeInterface {
-            virtual int func(int) = 0;
-
-            std::string state;
-        };
-
-        Mock<SomeInterface> mock;
+        Mock<SomeInterfaceWithState> mock;
         When(Method(mock, func)).AlwaysReturn(0);
         When(Method(mock, func).Using(1)).AlwaysReturn(1);
-        mock.Stub(&SomeInterface::state, "state");
+        mock.Stub(&SomeInterfaceWithState::state, "state");
 //
-        SomeInterface &i = mock.get();
+        SomeInterfaceWithState&i = mock.get();
         i.func(0);
         i.func(1);
 
@@ -649,10 +648,12 @@ struct BasicStubbing : tpunit::TestFixture {
         Verify(Method(mock, func).Using(1));
     }
 
+    struct SomeClass {
+        virtual int foo(int* x) = 0;
+    };
+
     void use_lambda_to_change_ptr_value() {
-        struct SomeClass {
-            virtual int foo(int *x) = 0;
-        };
+        
 
         Mock<SomeClass> mock;
 
@@ -667,11 +668,11 @@ struct BasicStubbing : tpunit::TestFixture {
         ASSERT_EQUAL(1, num);
     }
 
-    void assingOutParamsWithLambda(){
-        struct ApiInterface {
-            virtual bool apiMethod(int a, int b, int& result) = 0;
-        };
+    struct ApiInterface {
+        virtual bool apiMethod(int a, int b, int& result) = 0;
+    };
 
+    void assingOutParamsWithLambda(){
         Mock<ApiInterface> mock;
         When(Method(mock, apiMethod)).AlwaysDo([](int a, int b, int& result) {
             result = a + b;

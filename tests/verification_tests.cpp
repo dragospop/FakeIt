@@ -491,12 +491,9 @@ struct BasicVerification: tpunit::TestFixture {
 		Verify(2 * call_to_proc2_with_state_1);
 	}
 
-
 	void verifyWithUnverifiedFunctor(){
 
-        struct AnInterface {
-            virtual int func(int) = 0;
-        };
+        
         
         Mock<AnInterface> mock;
 		When(Method(mock, func)).AlwaysReturn(0);
@@ -519,11 +516,6 @@ struct BasicVerification: tpunit::TestFixture {
     }
 
 	void verifyWithUnverifiedFunctorWithUsing() {
-
-		struct AnInterface {
-			virtual int func(int) = 0;
-		};
-
 		Mock<AnInterface> mock;
 		When(Method(mock, func)).AlwaysReturn(0);
 
@@ -534,11 +526,11 @@ struct BasicVerification: tpunit::TestFixture {
 		ASSERT_THROW(Using(Unverified(mock)).Verify(Method(mock, func)).Once(), fakeit::VerificationException);
 	}
 
-	void verificationProgressShouldBeConvertibleToBool(){
+	struct AnInterface {
+		virtual int func(int) = 0;
+	};
 
-		struct AnInterface {
-			virtual int func(int) = 0;
-		};
+	void verificationProgressShouldBeConvertibleToBool(){
 
 		Mock<AnInterface> mock;
 		When(Method(mock, func)).AlwaysReturn(0);
@@ -571,12 +563,12 @@ struct BasicVerification: tpunit::TestFixture {
 		ASSERT_FALSE(!VerifyNoOtherInvocations(Method(mock, func)));
     }
 
-	void verificationShouldTolerateNullString(){
-		struct RefEater {
-			virtual int eatChar(char*) = 0;
-			virtual int eatConstChar(const char*) = 0;
-		};
+	struct RefEater {
+		virtual int eatChar(char*) = 0;
+		virtual int eatConstChar(const char*) = 0;
+	};
 
+	void verificationShouldTolerateNullString(){
 		Mock<RefEater> mock;
 		When( Method( mock, eatChar ) ).AlwaysReturn( 0 );
 		When( Method( mock, eatConstChar ) ).AlwaysReturn( 0 );
